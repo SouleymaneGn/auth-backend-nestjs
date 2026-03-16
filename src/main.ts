@@ -1,11 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule);
+  // app.use(cookieParser());
+  // app.enableCors({
+  //   origin: ['http://localhost:4200', 'http://localhost:4300'],
+  //   credentials: true,
+  // });
+  // app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  
     const config = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('Cats example')
     .setDescription('The cats API description')
     .setVersion('1.0')

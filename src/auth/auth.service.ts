@@ -16,6 +16,7 @@ export class AuthService {
  
   
   async validateUser(email: string, password:string){
+    console.log('email validate', email)
     const user = await this.usersService.findOneByEmail(email)
     if (!user) {
       throw new BadGatewayException('Utilisateur introuvable')
@@ -34,6 +35,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
     };
+    
 
     return {
       access_token: this.jwtService.sign(payload),
@@ -47,6 +49,11 @@ export class AuthService {
     }
     const hashedPassword = await bcrypt.hash(user.password, 10);
     const newUser = { ...user, password: hashedPassword };
-    this.usersService.create(newUser);
-    //return this.login(newUser);
-  }}
+     this.usersService.create(newUser);
+    return this.login(newUser);
+  }
+   // Stocke le token dans un cookie sécurisé
+  
+
+   
+}
