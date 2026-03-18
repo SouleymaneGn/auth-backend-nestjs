@@ -1,13 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
-import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as express from 'express';
 import { JwtAuthGuard } from './jwt.garde';
 import { ApiBearerAuth, ApiCookieAuth } from '@nestjs/swagger';
 import { AuthGuard } from './auth.garde';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -22,19 +22,20 @@ export class AuthController {
 
 
   @Post('register')
-  register(@Body() register: RegisterDto, @Res({ passthrough: true }) res: express.Response){
-    const access_token =  this.authService.register(register)
+  register(@Body() createUser: CreateUserDto, @Res({ passthrough: true }) res: express.Response){
+    const access_token =  this.authService.register(createUser)
     res.cookie('token', access_token, COOKIE_OPTIONS);
     
   }
    @Post('login')
-   login(@Body() login: LoginDto,  res: express.Response){
-    console.log("email controleur", login.password)
+   login(@Body() login: LoginDto, @Res({ passthrough: true })  res: express.Response){
   return this.authService.login(login); // <-- await ici
     // res.cookie('token', access_token, COOKIE_OPTIONS);
     // return access_token
 
   }
+
+
 
   @Get("private")
    @UseGuards(AuthGuard)
@@ -45,7 +46,11 @@ export class AuthController {
   testePublic(){
     return "public"
   }
-
+  @Get('me')
+  @UseGuards(AuthGuard)
+  getMe(@Req() req) {
+      return req.user
+  }
   // @Post()
   // create(@Body() createAuthDto: CreateAuthDto) {
   //   return this.authService.create(createAuthDto);

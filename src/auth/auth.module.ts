@@ -6,6 +6,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { jwtConstants } from './constants';
 import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from './auth.garde';
 
 @Module({
   imports:[
@@ -23,6 +24,8 @@ import { ConfigService } from '@nestjs/config';
     AuthService,
     PrismaService,
     UsersService,
+    AuthGuard
     ],
+    exports:[JwtModule, AuthGuard]
 })
 export class AuthModule {}

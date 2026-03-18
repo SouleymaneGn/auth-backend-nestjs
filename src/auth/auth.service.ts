@@ -1,10 +1,11 @@
 import { BadGatewayException, BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
-import {RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { PrismaService } from 'src/prisma.service';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { CreateAuthDto } from './dto/create-auth.dto';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 
 @Injectable()
@@ -16,7 +17,6 @@ export class AuthService {
  
   
   async validateUser(email: string, password:string){
-    console.log('email validate', email)
     const user = await this.usersService.findOneByEmail(email)
     if (!user) {
       throw new BadGatewayException('Utilisateur introuvable')
@@ -33,6 +33,7 @@ export class AuthService {
 
     const payload = {
       sub: user.id,
+      fullName : user.fullName,
       email: user.email,
     };
     
@@ -42,15 +43,15 @@ export class AuthService {
     };
   }
 
-  async register(user: RegisterDto) {
-    const existingUser = await this.usersService.findOneByEmail(user.email);
+  async register(createUser:CreateUserDto) {
+    const existingUser = await this.usersService.findOneByEmail(createUser.email);
     if (existingUser) {
       throw new BadRequestException("l'email existe déjà");
     }
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-    const newUser = { ...user, password: hashedPassword };
-     this.usersService.create(newUser);
-    return this.login(newUser);
+    const hashedPassword = await bcrypt.hash(createUser.password, 10);
+    const newUser = { ...createUser, password: hashedPassword };
+    return this.usersService.create(newUser);
+   // return this.login(newUser);
   }
    // Stocke le token dans un cookie sécurisé
   
